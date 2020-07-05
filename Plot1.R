@@ -4,6 +4,11 @@ library(graphics)
 hist(data$Global_active.Power,col="red",xlab = "GlobalActivePower(Kilowatts)",main  ="Global Active Power")
 legend("topright",legend = "Plot1")
 
+##PNG for Plot 1
+png(file="Plot1.png")
+hist(data$Global_active.Power,col="red",xlab = "GlobalActivePower(Kilowatts)",main  ="Global Active Power")
+dev.off()
+
 ##creating datetime variable for getting weekdays on x-axis
 data$Date<- as.Date(data$Date)
 data$DateTime <- strptime(paste(data$Date, data$Time), format="%d/%m/%Y %H:%M:%S")

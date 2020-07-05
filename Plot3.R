@@ -12,3 +12,11 @@ lines(data$DateTime, y,col='blue')
 lines(data$DateTime,z,col='red')
 legend("topright",pch='-',col=c("black","blue","Red"),legend=c("Sub_Metering1","Sub_Metering2","Sub_Metering3"))
 
+##png for plot 3
+png(file="Plot3.png")
+plot(data$DateTime,x,xlab="datetime",ylab = "Energy Sub_Metering",type = 'n')
+lines(data$DateTime, x)
+lines(data$DateTime, y,col='blue')
+lines(data$DateTime,z,col='red')
+legend("topright",pch='-',col=c("black","blue","Red"),legend=c("Sub_Metering1","Sub_Metering2","Sub_Metering3"))
+dev.off()

@@ -2,3 +2,7 @@ data<-read.table("C:/Users/KALYANI/Desktop/R-WORK/household_power_consumption.tx
 summary(data)
 plot(data$DateTime,data$Global_active.Power,ylab="Global Active Power(KiloWatts)",type = "l")
 
+##Png for plot 2
+png(file="Plot2.png")
+plot(data$DateTime,data$Global_active.Power,ylab="Global Active Power(KiloWatts)",type = "l")
+dev.off()
