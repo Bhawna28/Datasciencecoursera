@@ -1,0 +1,122 @@
+---
+title: "Practical Machine Learning Assignment"
+author: "Bhawna"
+date: "12/26/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Summary
+The Project aims to suggest a prdeiction model which uses the given training  data set and correctly predicts classe for the test data set.
+
+## Background of the Assignment
+Using devices such as Jawbone Up, Nike FuelBand, and Fitbit it is now possible to collect a large amount of data about personal activity relatively inexpensively. These type of devices are part of the quantified self movement - a group of enthusiasts who take measurements about themselves regularly to improve their health, to find patterns in their behavior, or because they are tech geeks. One thing that people regularly do is quantify how much of a particular activity they do, but they rarely quantify how well they do it. In this project, my goal will be to use data from accelerometers on the belt, forearm, arm, and dumbell of 6 participants. They were asked to perform barbell lifts correctly and incorrectly in 5 different ways. 
+More information is available from the website here: http://web.archive.org/web/20161224072740/http:/groupware.les.inf.puc-rio.br/har (see the section on the Weight Lifting Exercise Dataset).
+
+## Datasets used for this project
+The training data for this project are available here:
+
+https://d396qusza40orc.cloudfront.net/predmachlearn/pml-training.csv
+
+The test data are available here:
+
+https://d396qusza40orc.cloudfront.net/predmachlearn/pml-testing.csv
+
+
+The data for this project come from this source: http://web.archive.org/web/20161224072740/http:/groupware.les.inf.puc-rio.br/har. If you use the document you create for this class for any purpose please cite them as they have been very generous in allowing their data to be used for this kind of assignment.
+
+
+
+##Data Preprocessing
+
+Loading the required packages:
+
+```{r}
+library(caret)
+library(rpart)
+library(knitr)
+library(randomForest)
+set.seed(123)
+```
+##Downloading and allocating Datasets
+```{r}
+setwd("C:/Users/KALYANI/Desktop/R Projects/Datasciencecoursera")
+trainingurl <- "https://d396qusza40orc.cloudfront.net/predmachlearn/pml-training.csv"
+testingurl <- "https://d396qusza40orc.cloudfront.net/predmachlearn/pml-testing.csv"
+download.file(trainingurl,destfile="pml-training.csv")
+download.file(testingurl,destfile="pml-testing.csv")
+```
+##Loading Datasets into the environment
+
+```{r}
+traindata<-read.csv("pml-training.csv")
+testdata<-read.csv("pml-testing.csv")
+```
+
+##Getting an idea of the training data set
+```{r}
+str(traindata)
+```
+
+##Data preprocessing and cleaning
+Cleaning data by removing unnecessary columns
+```{r}
+training<-traindata[,-c(1:6)]
+testing<-testdata[,-c(1:6)]
+```
+
+
+removing NAs
+```{r}
+training<-training[,!colSums(is.na(training))>0]
+testing<-testing[,!colSums(is.na(testing))>0]
+sum(!colSums(is.na(training))>0)
+```
+
+near zerocovariance variates
+```{r}
+nsv<-nearZeroVar(training,saveMetrics=TRUE)
+nsvtest<-nearZeroVar(testing,saveMetrics=TRUE)
+sum(!nsv$nzv==TRUE)
+training<-training[,!nsv$nzv]
+testing<-testing[,!nsvtest$nzv]
+```
+
+##creating data partition for training and validation task
+```{r}
+intrain<-createDataPartition(training$classe,p=0.75,list=FALSE)
+training<-training[intrain,]
+validation<-training[-intrain,]
+```
+
+##With final training data in hand we go for classification with k nearest neighbour method
+
+```{r}
+set.seed(3333)
+trctrl<-trainControl(method = "repeatedcv",number=10,repeats = 3)
+modelfitknn<-train(classe~.,method="knn",data=training,trControl=trctrl,preProcess="pca")
+confusionMatrix(validation$classe,predict(modelfitknn,newdata=validation))
+```
+
+
+##The final results of the prediction is output into seperate .txt files.
+
+```{r}
+testpredict_knn<- predict(modelfitknn, newdata=testing)
+results <- function(x) {
+  n <- length(x)
+  for (i in 1:n) {
+    filename <- paste0("problem_id_",i, ".txt")
+    write.table(x[i], file=filename, quote=F, row.names=F,col.names=F)
+  }
+}
+results(testpredict_knn)
+
+result<-results(testpredict_knn)
+```
+
+
+
